@@ -33,3 +33,28 @@ cd springboot-jwt-auth
 ./mvnw spring-boot:run
 
 
+### API Endpoints
+Method	Endpoint	Description
+POST	/auth/create	Create User 
+POST	/Auth/login	Check credential and return JWT token in Response
+
+
+
+📂 Folder Structure
+css
+Copy
+Edit
+src/
+├── controller/
+├── security/
+├── service/
+├── model/
+└── util/
+
+
+---------------------------------------------------------
+-----------------------------------------------------------------------------------------
+--------------------------------------
+
+🤝 Contributing
+Feel free to fork this repo and submit PRs!
