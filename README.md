@@ -1,6 +1,3 @@
-# springboot-jwt-auth
-
-
 # Spring Boot JWT Authentication
 
 This is a simple implementation of **JWT-based authentication** using **Spring Boot**. It demonstrates secure user login, token generation, and token validation for protected endpoints.
