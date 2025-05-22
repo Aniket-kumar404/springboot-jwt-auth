@@ -22,7 +22,7 @@ import com.jwt.auth.service.UserdetailServiceImplementation;
 //import springfox.documentation.builders.RequestHandlerSelectors;
 //import springfox.documentation.spi.DocumentationType;
 //import springfox.documentation.spring.web.plugins.Docket;
-
+import com.jwt.auth.utility.JwtTokenValidator;
 
 @Configuration
 @EnableWebSecurity
@@ -30,33 +30,35 @@ public class ApplicationConfig {
 
     @Autowired
     private JwtTokenValidator authFilter;
-    
-	@Autowired
+
+    @Autowired
     private UserdetailServiceImplementation userDetailService;
-	
-    @Bean
-     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
-                .cors(cors -> cors.disable())
-                .httpBasic(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/auth/**").permitAll().
-                                requestMatchers("/api/**").hasAuthority("admin").
-                                requestMatchers("/user/**").hasAuthority("user")
-                                .requestMatchers("/swagger-ui.html", "/v3/api-docs", "/swagger-ui/**").permitAll()
-                                .anyRequest().authenticated())
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement(session -> session
-
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        .maximumSessions(2)
-                        .expiredUrl("/login?expired=true")
-        );
-        return http.build();
-    }
-
 
     @Bean
-     AuthenticationProvider authenticationProvider() {
+SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/auth/**",
+                "/refresh/**",
+                "/swagger-ui.html",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"   
+            ).permitAll()
+            .requestMatchers("/api/**").hasAuthority("admin")
+            .requestMatchers("/user/**").hasAuthority("user")
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    return http.build();
+}
+
+
+    @Bean
+    AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -64,13 +66,13 @@ public class ApplicationConfig {
     }
 
     @Bean
-     AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     PasswordEncoder passwordEncoder() {
-       return new BCryptPasswordEncoder(); 
-   }
+        return new BCryptPasswordEncoder();
+    }
 
 }
